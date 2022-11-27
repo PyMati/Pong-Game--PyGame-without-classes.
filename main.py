@@ -228,7 +228,7 @@ def main():
         win = True
         left_score = 0
         right_score = 0
-    
+
     def reset_ball(ball_object):
         """
         This function resets ball to center position,
