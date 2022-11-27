@@ -6,7 +6,7 @@ import random
 # Variables that help keep state of the game and need's of the game.
 start_game = False
 start = False
-winner = False
+win = False
 winner_player = ""
 WIN_SCORE = 5
 # Setting start players score.
@@ -16,10 +16,12 @@ right_score = 0
 
 # Main function.
 def main():
-    global start_game, winner
+    global start_game, win
 
     def create_rectangle(left, top, width, heigth):
-        """This function creates rectangle objects."""
+        """
+        This function creates rectangle objects.
+        """
         return pygame.Rect(left, top, width, heigth)
 
     # Initialization of the pygame library and window size as constant.
@@ -67,7 +69,7 @@ def main():
     # Setting maximum key repetition.
     pygame.key.set_repeat(25, 25)
 
-    # Font
+    # Font and text rendering
     font = pygame.font.Font("freesansbold.ttf", 25)
     right_player_score_text = font.render(f"Score:{right_score}",
                                           True,
@@ -114,7 +116,9 @@ def main():
 
     # Creation of ball physics.
     def ball_behaviour(ball_object, paddle_list):
-        """This function controls ball behaviour in game."""
+        """
+        This function controls ball behaviour in game.
+        """
         global start, left_score, right_score, need_random_direction
         if start:
             if ball_object.collidelist(paddle_list) == -1:
@@ -125,11 +129,19 @@ def main():
                 if ball_object.colliderect(paddle_list[0]):
                     direct = direction()
                     ball_velocity[1] = ball_velocity[1] * direct
-                    ball = ball_object.move(ESCAPE_SPEED, 0)
+                    if ball_velocity[1] < 0:
+                        escape_vertical = -ESCAPE_SPEED
+                    else:
+                        escape_vertical = ESCAPE_SPEED
+                    ball = ball_object.move(ESCAPE_SPEED, escape_vertical)
                     return ball
                 elif ball_object.colliderect(paddle_list[1]):
                     direct = direction()
                     ball_velocity[1] = ball_velocity[1] * direct
+                    if ball_velocity[1] < 0:
+                        escape_vertical = -ESCAPE_SPEED
+                    else:
+                        escape_vertical = ESCAPE_SPEED
                     ball = ball_object.move(-ESCAPE_SPEED, 0)
                     return ball
 
@@ -162,16 +174,22 @@ def main():
 
     # Draw game objects.
     def draw(game_object):
-        """This function draws object on the screen."""
+        """
+        This function draws object on the screen.
+        """
         return pygame.draw.rect(game_screen, white, game_object)
 
     def draw_text(text, position):
-        """This function draws text objects on the screen."""
+        """
+        This function draws text objects on the screen.
+        """
         return game_screen.blit(text, position)
 
     # Update scores of players.
     def score_right():
-        """This function updates score for right player."""
+        """
+        This function updates score for right player.
+        """
         global right_score, winner_player
         if right_score == WIN_SCORE:
             reset_score()
@@ -182,7 +200,9 @@ def main():
         return right_player_score_text
 
     def score_left():
-        """This function updates score for left player"""
+        """
+        This function updates score for left player.
+        """
         global left_score, winner_player
         if left_score == WIN_SCORE:
             reset_score()
@@ -193,15 +213,19 @@ def main():
         return right_player_score_text
 
     def winner_text():
-        """Displays information which player have won."""
+        """
+        Displays information which player have won.
+        """
         msg = font.render(f"{winner_player} Click R to restart.", True, white)
         return msg
 
     # Refresh screen/ ball object/ Game state.
     def reset_score():
-        """Reset winner game state and score of each player."""
-        global left_score, right_score, winner
-        winner = True
+        """
+        Reset winner game state and score of each player.
+        """
+        global left_score, right_score, win
+        win = True
         left_score = 0
         right_score = 0
     
@@ -216,31 +240,37 @@ def main():
         return ball_object
 
     def refresh_screen():
-        """This function refreshes screen.
-            More understandable for me :D.
+        """
+        This function refreshes screen.
+        More understandable for me :D.
         """
         return pygame.display.flip()
 
     def fill_screen_with_colour(colour):
-        """This function fills screen with a given colour."""
+        """
+        This function fills screen with a given colour.
+        """
         return game_screen.fill(colour)
 
     # Randomity
     def direction():
-        """Generates positive or negative number what influnce the direction
-        in which the ball is moving."""
+        """
+        Generates positive or negative number what influnce the direction
+        in which the ball is moving.
+        """
         return random.randrange(-1, 2, 2)
 
     # Main loop
     while True:
         # Controls and events
         if start_game:
+            fill_screen_with_colour(black)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
 
                 keys = pygame.key.get_pressed()
-                if not winner:
+                if not win:
                     # Left player controls
                     if keys[pygame.K_w]:
                         left_player = left_player.move(0, -PADDLE_SPEED)
@@ -262,12 +292,10 @@ def main():
                         right_player = right_player.move(-PADDLE_SPEED, 0)
                 else:
                     if keys[pygame.K_r]:
-                        winner = False
+                        win = False
 
             # Objects drawing
-            fill_screen_with_colour(black)
-
-            if not winner:
+            if not win:
                 # Players and ball
                 left_player = player_border_collision(left_player, "left")
                 right_player = player_border_collision(right_player, "right")
